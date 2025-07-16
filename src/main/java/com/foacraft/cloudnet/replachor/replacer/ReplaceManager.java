@@ -4,6 +4,7 @@ import com.foacraft.cloudnet.replachor.config.ConfigManager;
 import com.foacraft.cloudnet.replachor.config.entry.Replacement;
 import com.foacraft.cloudnet.replachor.config.entry.ReplacerGroup;
 import eu.cloudnetservice.node.service.CloudService;
+import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
@@ -47,19 +48,21 @@ public class ReplaceManager {
                     var fileContent = Files.readString(path);
                     for (Replacement replacement : group.replacements()) {
                         if (replacement.type() == Replacement.Type.SINGLE) {
+                            var content = replacement.content().stream().findFirst().get();
                             fileContent = fileContent.replace(
                                 replacement.placeholder(),
-                                replacement.content().stream().findFirst().get()
+                                BridgeServiceHelper.fillCommonPlaceholders(content, null, service.serviceInfo())
                             );
                         } else {
                             var random = new Random();
+                            var content = replacement.content().get(random.nextInt(fileContent.length()));
                             fileContent = fileContent.replace(
                                 replacement.placeholder(),
-                                replacement.content().get(random.nextInt(fileContent.length()))
+                                BridgeServiceHelper.fillCommonPlaceholders(content, null, service.serviceInfo())
                             );
                         }
                     }
-
+                    Files.writeString(path, fileContent);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -69,7 +72,7 @@ public class ReplaceManager {
 
     public List<ReplacerGroup> filterGroups(String name) {
         return configManager.getReplacerGroups().stream()
-                .filter((group -> group.servicePatterns().stream().anyMatch(name::matches)))
+                .filter(group -> group.servicePatterns().stream().anyMatch(name::matches))
                 .toList();
     }
 }

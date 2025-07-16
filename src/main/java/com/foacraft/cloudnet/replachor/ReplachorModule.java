@@ -13,6 +13,8 @@ import jakarta.inject.Singleton;
 import lombok.Getter;
 import lombok.NonNull;
 
+import java.io.IOException;
+
 /**
  * CloudNet-Storage-Local-Versalize
  * com.foacraft.cloudnet.tmux.services.TmuxServicesModule
@@ -39,8 +41,14 @@ public class ReplachorModule extends DriverModule {
         this.eventManager = eventManager;
         this.templateStorageProvider = templateStorageProvider;
         this.configManager = configManager;
-        eventManager.registerListeners(ServiceListener.class);
+        eventManager.registerListener(ServiceListener.class);
         commandProvider.register(ReplachorCommand.class);
+
+        try {
+            this.configManager.loadConfigs();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

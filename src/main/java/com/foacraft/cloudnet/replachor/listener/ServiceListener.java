@@ -37,20 +37,20 @@ public class ServiceListener {
     }
 
     @EventListener
-    public void e(CloudServicePostPrepareEvent e) {
+    public void e(@NonNull CloudServicePostPrepareEvent e) {
         replaceManager.process(e.service());
         triggeredServices.add(e.service().serviceId().uniqueId());
     }
 
     @EventListener
-    public void e(CloudServicePostLifecycleEvent e) {
+    public void e(@NonNull CloudServicePostLifecycleEvent e) {
         if (e.newLifeCycle() == ServiceLifeCycle.DELETED || e.newLifeCycle() == ServiceLifeCycle.STOPPED) {
             triggeredServices.remove(e.serviceInfo().serviceId().uniqueId());
         }
     }
 
     @EventListener
-    public void e(CloudServicePostProcessStartEvent e) {
+    public void e(@NonNull CloudServicePostProcessStartEvent e) {
         if (triggeredServices.contains(e.service().serviceId().uniqueId())) {
             return;
         }
@@ -59,7 +59,7 @@ public class ServiceListener {
             e.service().serviceId().name(),
             e.service().serviceId().uniqueId()
         );
-        // Because the CloudNet exist a problem that service might be change the unique id during the post-start to .
+        // Because the CloudNet exist a problem that service might be change the unique id during the post-prepare to post-start.
         replaceManager.process(e.service());
     }
 

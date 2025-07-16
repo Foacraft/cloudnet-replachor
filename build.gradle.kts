@@ -23,8 +23,8 @@ dependencies {
     compileOnly("net.md-5:bungeecord-api:1.20-R0.2-SNAPSHOT")
 
     compileOnly("eu.cloudnetservice.cloudnet:node-impl:4.0.0-RC12")
-    compileOnly("eu.cloudnetservice.cloudnet:bridge:4.0.0-RC12")
-    compileOnly("eu.cloudnetservice.cloudnet:platform-inject-api:4.0.0-RC11")
+    compileOnly("eu.cloudnetservice.cloudnet:bridge-impl:4.0.0-RC12")
+    compileOnly("eu.cloudnetservice.cloudnet:platform-inject-api:4.0.0-RC12")
 
     compileOnly("org.projectlombok:lombok:1.18.38")
     annotationProcessor("org.projectlombok:lombok:1.18.38")
@@ -59,5 +59,5 @@ moduleJson {
     author = "Score2"
     name = project.name
     group = project.group.toString()
-    main = "${rootProject.group}.LocalVersalizeModule"
+    main = "${rootProject.group}.ReplachorModule"
 }

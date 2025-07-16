@@ -1,7 +1,9 @@
 package com.foacraft.cloudnet.replachor.config;
 
 import com.electronwill.nightconfig.core.Config;
+import com.electronwill.nightconfig.core.ConfigFormat;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
+import com.electronwill.nightconfig.yaml.YamlFormat;
 import com.foacraft.cloudnet.replachor.ReplachorModule;
 import com.foacraft.cloudnet.replachor.config.entry.Replacement;
 import com.foacraft.cloudnet.replachor.config.entry.ReplacerGroup;
@@ -54,7 +56,8 @@ public class ConfigManager {
         }
         this.replacerGroups = new ArrayList<>();
         Files.list(baseDir).forEach(path -> {
-            var config = CommentedFileConfig.builder(path).build();
+            ConfigFormat format = YamlFormat.defaultInstance();
+            var config = CommentedFileConfig.builder(path, format).build();
             config.load();
 
             for (Config.Entry entry : config.entrySet()) {
