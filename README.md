@@ -2,28 +2,22 @@
 
 CloudNet-Replachor is a module for [CloudNet](https://cloudnetservice.eu) that allows you to dynamically replace placeholders in any file within your services. This is particularly useful for templating configuration files with dynamic information like database credentials, service-specific settings, or any other value you want to manage centrally.
 
-## Features
+## Features ✨
 
 * **Dynamic File Content Replacement**: Replace placeholders in any text-based file before a service starts.
 * **Service-Specific Configuration**: Apply different replacement rules based on the service name using regular expressions.
 * **Flexible File Matching**: Use glob patterns to target specific files or entire directories for replacement.
 * **Multiple Replacement Types**:
-    * **Single**: Replace a placeholder with a single, static value.
-    * **Random**: Replace a placeholder with a randomly selected value from a list.
-* **CloudNet Placeholder Support**: The content used for replacement can itself contain CloudNet's built-in placeholders, which will be resolved automatically.
+  * **Single**: Replace a placeholder with a single, static value.
+  * **Random**: Replace a placeholder with a randomly selected value from a list.
+* **CloudNet Placeholder Support**: The content used for replacement can itself contain CloudNet's built-in placeholders, which will be resolved automatically before replacement.
 * **Live Reloading**: Reload your replacement configurations without restarting the CloudNet node using a simple command.
 * **Configuration Info**: View all loaded replacement groups and their settings directly from the console.
 * **Robust Lifecycle Integration**: Replacements are primarily applied after a service is prepared (`CloudServicePostPrepareEvent`). The module also includes a failsafe to re-apply replacements if a service starts abnormally (`CloudServicePostProcessStartEvent`).
 
-## Installation
+-----
 
-1.  Download the latest version of the module from the releases page.
-2.  Place the downloaded `.jar` file into the `modules` directory of your CloudNet-Node.
-3.  Restart your CloudNet-Node. The module will be loaded automatically.
-
-## Configuration
-
-After the first start, the module will create a directory named `plugins/CloudNet-Replachor` (or a similar path depending on your setup) containing an `example.yml` file. You can create multiple `.yml` files in this directory, and the module will load all of them.
+## Configuration ⚙️
 
 The configuration is based on "Replacer Groups". Each group defines a set of rules for replacements.
 
@@ -78,6 +72,19 @@ game-type-replacer:
       - 'solo'
       - 'squad'
       - 'team'
+
+# This group demonstrates using CloudNet's built-in placeholders.
+dynamic-motd-replacer:
+  service-patterns:
+    - 'Lobby-.*' # Matches all lobby services.
+  paths-matchers:
+    - "server.properties" # For Minecraft servers
+    - "config.yml"      # For BungeeCord/Velocity proxies
+  replacements:
+    # The value for 'motd' will be processed by CloudNet's BridgeServiceHelper,
+    # replacing variables like %name%, %port%, etc., with actual service data.
+    '{server_motd}': 'Welcome to %name%! We are running on port %port%.'
+    '{server_state_message}': 'Current server state is %state% with %online_players%/%max_players% players.'
 ```
 
 ### Configuration Details:
@@ -85,19 +92,43 @@ game-type-replacer:
 * **`service-patterns`**: A list of Java-style regular expressions. If a service's name matches any of these patterns, the replacements in this group will be applied.
 * **`paths-matchers`**: A list of glob patterns used to locate files. The search is performed within each service's directory. For more information on glob syntax, see the [Java PathMatcher documentation](https://www.google.com/search?q=https://docs.oracle.com/javase/8/docs/api/java/nio/file/FileSystem.html%23getPathMatcher-java.lang.String-).
 * **`replacements`**: This section defines the actual placeholder-to-content mappings.
-    * If the value is a single string, it's a **SINGLE** replacement.
-    * If the value is a list of strings, it's a **RANDOM** replacement, and one item from the list will be chosen at random.
+  * If the value is a single string, it's a **SINGLE** replacement.
+  * If the value is a list of strings, it's a **RANDOM** replacement, and one item from the list will be chosen at random.
 
-## Commands
+### Using CloudNet Placeholders
 
-The module provides a set of commands to manage it. The base command alias can be `replacer` or `replachor`.
+A powerful feature of this module is its ability to use CloudNet's own placeholders within your replacement content. The replacement logic is handled by `BridgeServiceHelper.fillCommonPlaceholders`, which means you have access to a wide range of dynamic variables related to the service.
+
+When you define a replacement, the `content` value is first passed through CloudNet's placeholder system. The result of that is then used to replace your custom placeholder in the target file.
+
+**Available Placeholders include:**
+
+* `%name%`: The name of the service (e.g., `Lobby-1`).
+* `%task%`: The name of the service's task.
+* `%node%`: The unique ID of the node the service is running on.
+* `%unique_id%`: The full unique ID of the service.
+* `%uid%`: The short unique ID of the service.
+* `%port%`: The port of the service.
+* `%online_players%`: The current number of online players.
+* `%max_players%`: The maximum number of players.
+* `%motd%`: The MOTD of the service.
+* `%state%`: The current state of the service (e.g., LOBBY, INGAME).
+* ...and many more from [BridgeServiceHelper](https://github.com/CloudNetService/CloudNet/blob/nightly/modules/bridge/api/src/main/java/eu/cloudnetservice/modules/bridge/BridgeServiceHelper.java).
+
+This allows for highly dynamic configurations managed centrally.
+
+-----
+
+## Commands 💻
+
+The module provides a set of commands to manage it. The base command alias can be **`replacer`** or **`replachor`**.
 
 * `replacer reload`
 
-    * Reloads all configuration files from the module's data directory.
-    * Permission: `replachor.command`.
+  * Reloads all configuration files from the module's data directory.
+  * **Permission**: `replachor.command`.
 
 * `replacer info`
 
-    * Displays all loaded replacer groups, including their service patterns, path matchers, and defined replacements. This is useful for debugging your configurations.
-    * Permission: `replachor.command`.
+  * Displays all loaded replacer groups, including their service patterns, path matchers, and defined replacements. This is useful for debugging your configurations.
+  * **Permission**: `replachor.command`.
