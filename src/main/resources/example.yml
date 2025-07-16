@@ -1,0 +1,42 @@
+# group name
+database-replacer:
+  # match the all services
+  service-patterns:
+    - '.*'
+  # match the files of glob format
+  paths-matchers:
+    - "*.yml"
+    - "*.conf"
+    - "*.json"
+    - "**/*.yml"
+    - "**/*.conf"
+    - "**/*.json"
+  # placeholder -> content (single or random(list))
+  replacements:
+    '{database_mysql_host}': '172.24.0.24'
+    '{database_mysql_port}': '3306'
+    '{database_mysql_username}': 'example'
+    '{database_mysql_password}': 'password'
+    '{database_redis_host}': '172.24.0.24'
+    '{database_redis_port}': '6379'
+    '{database_redis_password}': 'example'
+
+game-type-replacer:
+  service-patterns:
+    - 'game-island-.*'
+  paths-matchers:
+    - "*.yml"
+    - "*.conf"
+    - "*.json"
+    - "**/*.yml"
+    - "**/*.conf"
+    - "**/*.json"
+  replacements:
+    '{game_maxplayers}': '16'
+    '{game_special_gadgets}':
+      - 'true'
+      - 'false'
+    '{game_random_types}':
+      - 'solo'
+      - 'squad'
+      - 'team'
